@@ -1,0 +1,10 @@
+name: ucsc_pslcdnafilter
+owner: yating-l
+description: Filter cDNA alignments in psl format
+homepage_url: http://hgdownload.cse.ucsc.edu/admin/exe/
+type: unrestricted
+categories: 
+- Sequence Analysis
+exclude:
+  - tool_test_output.html
+  - tool_test_output.json

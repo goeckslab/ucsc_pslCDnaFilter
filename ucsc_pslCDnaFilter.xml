@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<tool id="ucsc_pslcdnafilter" name="UCSC pslCDnaFilter" version="1.0">
+    <description>Filter cDNA alignments in psl format</description>
+    <requirements>
+      <requirement type="package" version="1.0">ucsc_tools_340_for_BLAT</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+      pslReps -minAli=0.25 '${alignment}' output.reps.psl output.reps.psr
+      && faPolyASizes '${query}' query.polyA
+      && pslCDnaFilter
+            #if $assembly_type == "native"
+                  -localNearBest=0.001
+                  #if $assembly_category == "finished"
+                        -minId=0.95
+                        -minCover=0.25
+                  #else if $assembly_category == "well-ordered"
+                        -minId=0.95
+                        -minCover=0.15
+            #else
+                  -minId=0.94
+                  -minAlnSize=80
+            #end if
+            #else
+                  -localNearBest=0.010
+                  #if $assembly_category == "finished"
+                        -minId=0.35
+                        -minCover=0.25
+                  #else if $assembly_category == "well-ordered"
+                        -minId=0.35
+                        -minCover=0.15
+                  #else
+                        -minId=0.33
+                        -minAlnSize=80
+                  #end if
+            #end if
+            -minQSize=20 
+            -ignoreIntrons 
+            -repsAsMatch 
+            -ignoreNs 
+            -bestOverlap 
+            -polyASizes=query.polyA 
+            output.reps.psl 
+            '${output_filtered}'
+]]></command>
+      <inputs>
+            <param type="data" name="alignment" format="psl" />
+            <param type="data" name="query" format="fasta" />
+            <param name="assembly_type" type="select" label="Choose your type of cDNA sequence">
+                  <option value="native">Same species</option>
+                  <option value="xeno">Across species</option>
+            </param>
+            <param name="assembly_category" type="select" label="Choose your genome assembly category">
+                  <option value="finished">finished assemblies (high quality)</option>
+                  <option value="well-ordered">well-ordered assemblies (well ordered, whole genome shotgun)</option>
+                  <option value="low-coverage">low-coverage assemblies (low coverage (&lt; 4x"), lots of contigs, N50 scaffold size &lt; 1mb) </option>
+            </param>
+      </inputs>
+      <outputs>
+            <data format="psl" name="output_filtered" label="${tool.name} on ${on_string}:filtered BLAT results"></data>
+      </outputs>
+  <tests>
+      <test>
+            <param name="alignment" value="amaVit1_Gallus/amaVit1_Gallus_gallus.psl" />
+            <param name="query" value="amaVit1_Gallus/Gallus_gallus_RefSeq.fa" />
+            <param name="assembly_type" value="xeno" />
+            <param name="assembly_category" value="well-ordered" />
+            <output name="output_filtered" value="amaVit1_Gallus/amaVit1_Gallus_gallus_filtered.psl" />
+      </test>
+      <test>
+            <param name="alignment" value="dbia3/dbia3.sorted.psl" />
+            <param name="query" value="dbia3/dmel-all-transcript-r6.13.fasta" />
+            <param name="assembly_type" value="xeno" />
+            <param name="assembly_category" value="well-ordered" />
+            <output name="output_filtered" value="dbia3/dbia3_dmel_filtered.psl" />
+      </test>
+
+  </tests> 
+  <help>
+        <![CDATA[
+
+pslCDnaFilter (version: v340)
+==============================
+Filter cDNA alignments in psl format. Filtering criteria are comparative, selecting near best in genome alignments for each given cDNA and non-comparative, based only on the quality of an individual alignment.
+
+usage:
+-------
+
+  $ pslCDnaFilter [options] inPsl outPsl
+
+Source code:
+-------------
+
+http://hgdownload.cse.ucsc.edu/admin/exe/
+
+Licence
+========
+Please note that commercial download and installation of the Blat and In-Silico PCR software may be licensed through Kent Informatics (http://www.kentinformatics.com).
+]]>
+</help>  
+<citations>
+      <citation type="bibtex">@article{kent2002blat,
+  title={BLAT—the BLAST-like alignment tool},
+  author={Kent, W James},
+  journal={Genome research},
+  volume={12},
+  number={4},
+  pages={656--664},
+  year={2002},
+  publisher={Cold Spring Harbor Lab}
+      }</citation>
+</citations> 
+</tool>
+             
+            
+
+               
+    
